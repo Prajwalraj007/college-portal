@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ course|upper }} - Semesters</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <h1>{{ course|upper }} Course</h1>
+    <p>Select Semester</p>
+
+    <!-- LOGIN / LOGOUT SYSTEM -->
+    <div class="admin-panel">
+
+        {% if session.get('teacher') %}
+            <a href="{{ url_for('upload') }}" class="upload-btn">Upload</a>
+            <a href="{{ url_for('logout') }}" class="upload-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="upload-btn">Teacher Login</a>
+        {% endif %}
+
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<div class="course-container">
+
+    <a href="{{ url_for('papers', course=course, sem=1) }}" class="course-btn">Semester 1</a>
+    <a href="{{ url_for('papers', course=course, sem=2) }}" class="course-btn">Semester 2</a>
+    <a href="{{ url_for('papers', course=course, sem=3) }}" class="course-btn">Semester 3</a>
+    <a href="{{ url_for('papers', course=course, sem=4) }}" class="course-btn">Semester 4</a>
+    <a href="{{ url_for('papers', course=course, sem=5) }}" class="course-btn">Semester 5</a>
+    <a href="{{ url_for('papers', course=course, sem=6) }}" class="course-btn">Semester 6</a>
+
+</div>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Question Paper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>Upload Question Paper</h1>
+    <p>Teacher Panel</p>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<main>
+
+<div class="course-container" style="max-width: 500px; margin: auto;">
+
+    <form action="{{ url_for('upload_paper') }}" method="POST" enctype="multipart/form-data" class="course-btn" style="flex-direction: column; gap: 15px;">
+
+        <!-- COURSE -->
+        <label>Course</label>
+        <select name="course" required>
+            <option value="">-- Select Course --</option>
+            <option value="bca">BCA</option>
+            <option value="bsc">BSC</option>
+            <option value="bcom">BCOM</option>
+            <option value="ba">BA</option>
+            <option value="bba">BBA</option>
+        </select>
+
+        <!-- SEMESTER -->
+        <label>Semester</label>
+        <select name="semester" required>
+            <option value="">-- Select Semester --</option>
+            <option value="1">Sem 1</option>
+            <option value="2">Sem 2</option>
+            <option value="3">Sem 3</option>
+            <option value="4">Sem 4</option>
+            <option value="5">Sem 5</option>
+            <option value="6">Sem 6</option>
+        </select>
+
+        <!-- SUBJECT -->
+        <label>Subject</label>
+        <input type="text" name="subject" placeholder="Enter subject name" required>
+
+        <!-- FILE -->
+        <label>Upload File</label>
+        <input type="file" name="file" accept=".pdf,.doc,.docx" required>
+
+        <!-- BUTTON -->
+        <button type="submit" class="upload-btn">
+            Upload Paper
+        </button>
+
+    </form>
+
+</div>
+
+</main>
+
+</body>
+</html>

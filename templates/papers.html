@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Semester {{ sem }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <h1>Semester {{ sem }}</h1>
+    <p>QUESTION PAPERS</p>
+
+    <div class="admin-panel">
+        {% if session.get('teacher') %}
+            <a href="{{ url_for('upload') }}" class="upload-btn">Upload</a>
+            <a href="{{ url_for('logout') }}" class="upload-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="upload-btn">Teacher Login</a>
+        {% endif %}
+    </div>
+</header>
+
+<!-- ✅ FLASH MESSAGE (VERY IMPORTANT) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- MAIN -->
+<main>
+
+{% if papers %}
+<div class="course-container">
+
+    {% for paper in papers %}
+    <div class="course-btn" style="flex-direction: column; gap: 15px;">
+
+        <h3>{{ paper.subject }}</h3>
+
+        <div style="display: flex; gap: 10px;">
+
+            <a href="{{ url_for('static', filename=paper.file_path) }}" target="_blank" class="upload-btn">
+                View
+            </a>
+
+            <a href="{{ url_for('static', filename=paper.file_path) }}" download class="upload-btn">
+                Download
+            </a>
+
+            {% if session.get('teacher') %}
+            <!-- ✅ FIXED DELETE URL -->
+            <a href="{{ url_for('delete_paper', id=paper.id, course=course, sem=sem) }}">
+                Delete
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+<p>No papers available</p>
+{% endif %}
+
+</main>
+
+</body>
+</html>

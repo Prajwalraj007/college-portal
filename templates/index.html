@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}
+ExamVault BNU | Bangalore North University Question Papers
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<header>
+    <h1>ExamVault BNU</h1>
+    <p>Bangalore North University Previous Question Papers</p>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin-panel">
+
+        {% if session.get('teacher') %}
+            <a href="{{ url_for('upload') }}" class="upload-btn">Upload</a>
+            <a href="{{ url_for('logout') }}" class="upload-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="upload-btn">Teacher Login</a>
+        {% endif %}
+
+    </div>
+</header>
+
+<!-- WELCOME SECTION -->
+<section class="welcome">
+    <h2>Welcome Students 👋</h2>
+    <p>
+        Access Bangalore North University (BNU) previous year question papers,
+        semester-wise PDFs, and exam resources for courses like BCA, BCom, BSc, BA, and BBA.
+    </p>
+</section>
+
+<!-- SEARCH SECTION -->
+<section class="search-section">
+    <input type="text" placeholder="Search question papers (e.g. BCA 1st sem BNU)..." />
+    <button>Search</button>
+</section>
+
+<!-- COURSES -->
+<main>
+    <h2>BNU Question Papers by Course</h2>
+
+    <div class="course-container">
+        <a href="{{ url_for('course', name='bca') }}" class="course-btn">BCA</a>
+        <a href="{{ url_for('course', name='bsc') }}" class="course-btn">BSc</a>
+        <a href="{{ url_for('course', name='bcom') }}" class="course-btn">BCom</a>
+        <a href="{{ url_for('course', name='ba') }}" class="course-btn">BA</a>
+        <a href="{{ url_for('course', name='bba') }}" class="course-btn">BBA</a>
+    </div>
+
+    <!-- ADMIN PANEL SECTION -->
+    <section class="admin-card">
+        <h2>Admin Panel</h2>
+        <p>Teachers can upload question papers here</p>
+
+        <a href="{{ url_for('upload') }}" class="upload-btn big">
+            Go to Upload Panel →
+        </a>
+    </section>
+</main>
+
+<!-- NOTICES -->
+<section class="notices">
+    <h2>📢 Notices</h2>
+    <ul>
+        <li>Semester exam timetable will be released soon.</li>
+        <li>Upload of new question papers is in progress.</li>
+        <li>Students login system coming soon.</li>
+    </ul>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+    <h2>About ExamVault BNU</h2>
+    <p>
+        ExamVault BNU is a student-focused platform that provides easy access to
+        Bangalore North University previous year question papers, organized by course and semester.
+    </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    © 2026 ExamVault BNU | Made for Students 📚
+</footer>
+
+{% endblock %}
