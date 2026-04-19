@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for 
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 import os
 import mysql.connector
 from werkzeug.utils import secure_filename
-from flask import flash
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -20,12 +19,12 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # -------------------------
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Raj@2512",
-        database="college_portal"
+        host=os.getenv("MYSQLHOST"),
+        user=os.getenv("MYSQLUSER"),
+        password=os.getenv("MYSQLPASSWORD"),
+        database=os.getenv("MYSQLDATABASE"),
+        port=int(os.getenv("MYSQLPORT"))
     )
-
 # -------------------------
 # HOME PAGE
 # -------------------------
@@ -40,7 +39,6 @@ def home():
 def course(name):
     return render_template("course.html", course=name)
 
-# Optional direct routes
 @app.route("/bca")
 def bca():
     return redirect(url_for("course", name="bca"))
@@ -109,7 +107,7 @@ def login():
             session["teacher"] = teacher["id"]
             return redirect(url_for("home"))
         else:
-            return "Invalid Login "
+            return "Invalid Login"
 
     return render_template("login.html")
 
@@ -138,7 +136,7 @@ def upload():
 def upload_paper():
 
     if not session.get("teacher"):
-        return "Unauthorized "
+        return "Unauthorized"
 
     course = request.form["course"]
     semester = int(request.form["semester"])
@@ -167,9 +165,10 @@ def upload_paper():
         cursor.close()
         conn.close()
 
-        flash("✅ Paper uploaded successfully!", "success")
+        flash("Paper uploaded successfully!", "success")
         return redirect(url_for("papers", course=course, sem=semester))
-    return "Upload Failed ❌"
+
+    return "Upload Failed"
 
 # -------------------------
 # DELETE PAPER
@@ -178,7 +177,7 @@ def upload_paper():
 def delete_paper(id, course, sem):
 
     if not session.get("teacher"):
-        return "Unauthorized ❌"
+        return "Unauthorized"
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -191,7 +190,6 @@ def delete_paper(id, course, sem):
     paper = cursor.fetchone()
 
     if paper:
-
         full_path = os.path.join("static", paper["file_path"])
 
         if os.path.exists(full_path):
@@ -209,7 +207,7 @@ def delete_paper(id, course, sem):
     return redirect(url_for("papers", course=course, sem=sem))
 
 # -------------------------
-# RUN SERVER
+# RUN SERVER (FIXED FOR RENDER)
 # -------------------------
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(host="0.0.0.0", port=10000)
