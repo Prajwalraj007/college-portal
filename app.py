@@ -219,6 +219,11 @@ def delete_paper(id, course, sem):
 
     return redirect(url_for("papers", course=course, sem=sem))
 
+@app.route("/test")
+def test():
+    return "FLASK IS RUNNING ✅"
+
+
 
 # -------------------------
 # IMPORTANT: RAILWAY ENTRY
