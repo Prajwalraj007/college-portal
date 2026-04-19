@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 import os
 import mysql.connector
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.getenv("SECRET_KEY", "secret123")
 
 # -------------------------
 # CONFIG
@@ -15,16 +17,17 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------------------------
-# DATABASE CONNECTION
+# DATABASE CONNECTION (FIXED)
 # -------------------------
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.getenv("MYSQLHOST"),
-        user=os.getenv("MYSQLUSER"),
-        password=os.getenv("MYSQLPASSWORD"),
-        database=os.getenv("MYSQLDATABASE"),
-        port=int(os.getenv("MYSQLPORT"))
+        host="roundhouse.proxy.rlwy.net",
+        user="root",
+        password="ZYqrMCLlPjeLDkcdQkrzYibYtznbKplp",
+        database="railway",
+        port=43167
     )
+
 # -------------------------
 # HOME PAGE
 # -------------------------
@@ -107,7 +110,8 @@ def login():
             session["teacher"] = teacher["id"]
             return redirect(url_for("home"))
         else:
-            return "Invalid Login"
+            flash("Invalid Login", "error")
+            return redirect(url_for("login"))
 
     return render_template("login.html")
 
@@ -146,7 +150,6 @@ def upload_paper():
     if file and file.filename != "":
 
         filename = secure_filename(file.filename)
-
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(filepath)
 
@@ -207,7 +210,7 @@ def delete_paper(id, course, sem):
     return redirect(url_for("papers", course=course, sem=sem))
 
 # -------------------------
-# RUN SERVER (FIXED FOR RENDER)
+# RUN SERVER
 # -------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
