@@ -15,11 +15,10 @@ app.secret_key = os.getenv("SECRET_KEY", "secret123")
 # -------------------------
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------------------------
-# DATABASE CONNECTION (RAILWAY SAFE)
+# DATABASE CONNECTION (SAFE FOR CLOUD)
 # -------------------------
 def get_db_connection():
     try:
@@ -43,7 +42,7 @@ def home():
     return render_template("index.html")
 
 # -------------------------
-# COURSE PAGE
+# COURSE ROUTES
 # -------------------------
 @app.route("/course/<name>")
 def course(name):
@@ -70,7 +69,7 @@ def bba():
     return redirect(url_for("course", name="bba"))
 
 # -------------------------
-# PAPERS PAGE
+# PAPERS
 # -------------------------
 @app.route("/papers/<course>/<int:sem>")
 def papers(course, sem):
@@ -220,8 +219,9 @@ def delete_paper(id, course, sem):
 
     return redirect(url_for("papers", course=course, sem=sem))
 
+
 # -------------------------
-# RUN
+# IMPORTANT: RAILWAY ENTRY
 # -------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
