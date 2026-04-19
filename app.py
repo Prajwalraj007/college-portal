@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
 load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "secret123")
 
@@ -13,20 +14,30 @@ app.secret_key = os.getenv("SECRET_KEY", "secret123")
 # -------------------------
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------------------------
-# DATABASE CONNECTION (FIXED)
+# DATABASE CONNECTION (RAILWAY FIX)
 # -------------------------
 def get_db_connection():
-    return mysql.connector.connect(
-        host="roundhouse.proxy.rlwy.net",
-        user="root",
-        password="ZYqrMCLlPjeLDkcdQkrzYibYtznbKplp",
-        database="railway",
-        port=43167
-    )
+    try:
+        return mysql.connector.connect(
+            host=os.getenv("MYSQLHOST"),
+            user=os.getenv("MYSQLUSER"),
+            password=os.getenv("MYSQLPASSWORD"),
+            database=os.getenv("MYSQLDATABASE"),
+            port=int(os.getenv("MYSQLPORT"))
+        )
+    except Exception as e:
+        print("DB CONNECTION ERROR:", e)
+        return None
+
+# -------------------------
+# TEST ROUTE (IMPORTANT)
+# -------------------------
+@app.route("/test")
+def test():
+    return "App is running!"
 
 # -------------------------
 # HOME PAGE
@@ -69,14 +80,21 @@ def bba():
 def papers(course, sem):
 
     conn = get_db_connection()
+    if not conn:
+        return "Database connection failed"
+
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("""
-        SELECT * FROM question_papers
-        WHERE course=%s AND semester=%s
-    """, (course, sem))
+    try:
+        cursor.execute("""
+            SELECT * FROM question_papers
+            WHERE course=%s AND semester=%s
+        """, (course, sem))
 
-    papers = cursor.fetchall()
+        papers = cursor.fetchall()
+    except Exception as e:
+        print("DB ERROR:", e)
+        papers = []
 
     cursor.close()
     conn.close()
@@ -94,6 +112,9 @@ def login():
         password = request.form["password"]
 
         conn = get_db_connection()
+        if not conn:
+            return "Database error"
+
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute(
@@ -156,6 +177,9 @@ def upload_paper():
         db_path = f"uploads/{filename}"
 
         conn = get_db_connection()
+        if not conn:
+            return "Database error"
+
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -183,6 +207,9 @@ def delete_paper(id, course, sem):
         return "Unauthorized"
 
     conn = get_db_connection()
+    if not conn:
+        return "Database error"
+
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute(
@@ -210,7 +237,8 @@ def delete_paper(id, course, sem):
     return redirect(url_for("papers", course=course, sem=sem))
 
 # -------------------------
-# RUN SERVER
+# RUN SERVER (RAILWAY FIX)
 # -------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
