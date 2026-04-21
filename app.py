@@ -41,11 +41,11 @@ def get_db_connection():
             connection_timeout=5
         )
 
-        print("✅ DB CONNECTED")
+        print(" DB CONNECTED")
         return conn
 
     except Exception as e:
-        print("❌ DB ERROR:", e)
+        print(" DB ERROR:", e)
         raise e
 
 # -------------------------
@@ -90,7 +90,7 @@ def papers(course, sem):
 
     conn = get_db_connection()
     if conn is None:
-        return "Database not connected ❌"
+        return "Database not connected "
 
     cursor = conn.cursor(dictionary=True)
 
@@ -118,7 +118,7 @@ def login():
 
         conn = get_db_connection()
         if conn is None:
-            return "Database not connected ❌"
+            return "Database not connected "
 
         cursor = conn.cursor(dictionary=True)
 
@@ -136,7 +136,7 @@ def login():
             session["teacher"] = teacher["id"]
             return redirect(url_for("home"))
         else:
-            return "Invalid Login ❌"
+            return "Invalid Login "
 
     return render_template("login.html")
 
@@ -165,7 +165,7 @@ def upload():
 def upload_paper():
 
     if not session.get("teacher"):
-        return "Unauthorized ❌"
+        return "Unauthorized "
 
     course = request.form["course"]
     semester = request.form["semester"]
@@ -182,7 +182,7 @@ def upload_paper():
 
         conn = get_db_connection()
         if conn is None:
-            return "Database not connected ❌"
+            return "Database not connected "
 
         cursor = conn.cursor()
 
@@ -199,7 +199,7 @@ def upload_paper():
         flash("Uploaded successfully!", "success")
         return redirect(url_for("papers", course=course, sem=semester))
 
-    return "Upload Failed ❌"
+    return "Upload Failed "
 
 # -------------------------
 # DELETE PAPER
@@ -208,11 +208,11 @@ def upload_paper():
 def delete_paper(id, course, sem):
 
     if not session.get("teacher"):
-        return "Unauthorized ❌"
+        return "Unauthorized "
 
     conn = get_db_connection()
     if conn is None:
-        return "Database not connected ❌"
+        return "Database not connected "
 
     cursor = conn.cursor(dictionary=True)
 
@@ -235,7 +235,7 @@ def delete_paper(id, course, sem):
 
 @app.route("/test")
 def test():
-    return "FLASK IS RUNNING ✅"
+    return "FLASK IS RUNNING "
 
 
 
