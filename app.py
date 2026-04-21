@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 import os
 import mysql.connector
 from werkzeug.utils import secure_filename
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -20,19 +21,32 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # -------------------------
 # DATABASE CONNECTION (SAFE FOR CLOUD)
 # -------------------------
+
+
 def get_db_connection():
     try:
-        return mysql.connector.connect(
-            host=os.getenv("MYSQLHOST"),
-            user=os.getenv("MYSQLUSER"),
-            password=os.getenv("MYSQLPASSWORD"),
-            database=os.getenv("MYSQLDATABASE"),
-            port=int(os.getenv("MYSQLPORT", 3306)),
+        url = os.getenv("MYSQL_URL")
+
+        if not url:
+            raise Exception("MYSQL_URL not set")
+
+        parsed = urllib.parse.urlparse(url)
+
+        conn = mysql.connector.connect(
+            host=parsed.hostname,
+            user=parsed.username,
+            password=parsed.password,
+            database=parsed.path.lstrip('/'),
+            port=parsed.port,
             connection_timeout=5
         )
+
+        print("✅ DB CONNECTED")
+        return conn
+
     except Exception as e:
-        print("DB ERROR:", e)
-        raise e 
+        print("❌ DB ERROR:", e)
+        raise e
 
 # -------------------------
 # HOME
