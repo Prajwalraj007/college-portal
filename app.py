@@ -32,7 +32,7 @@ def get_db_connection():
         )
     except Exception as e:
         print("DB ERROR:", e)
-        return None
+        raise e 
 
 # -------------------------
 # HOME
