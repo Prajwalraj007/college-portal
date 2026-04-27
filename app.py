@@ -19,17 +19,16 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------------------------
-# DATABASE CONNECTION (SAFE FOR CLOUD)
+# DATABASE CONNECTION (FIXED SAFE VERSION)
 # -------------------------
-
-
 def get_db_connection():
+    url = os.getenv("MYSQL_URL")
+
+    if not url:
+        print("MYSQL_URL NOT FOUND")
+        return None
+
     try:
-        url = os.getenv("MYSQL_URL")
-
-        if not url:
-            raise Exception("MYSQL_URL not set")
-
         parsed = urllib.parse.urlparse(url)
 
         conn = mysql.connector.connect(
@@ -41,12 +40,13 @@ def get_db_connection():
             connection_timeout=5
         )
 
-        print(" DB CONNECTED")
+        print("DB CONNECTED")
         return conn
 
     except Exception as e:
-        print(" DB ERROR:", e)
-        raise e
+        print("DB ERROR:", e)
+        return None
+
 
 # -------------------------
 # HOME
@@ -54,6 +54,7 @@ def get_db_connection():
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 # -------------------------
 # COURSE ROUTES
@@ -82,6 +83,7 @@ def ba():
 def bba():
     return redirect(url_for("course", name="bba"))
 
+
 # -------------------------
 # PAPERS
 # -------------------------
@@ -89,8 +91,8 @@ def bba():
 def papers(course, sem):
 
     conn = get_db_connection()
-    if conn is None:
-        return "Database not connected "
+    if not conn:
+        return "Database not connected"
 
     cursor = conn.cursor(dictionary=True)
 
@@ -106,6 +108,7 @@ def papers(course, sem):
 
     return render_template("papers.html", papers=papers, course=course, sem=sem)
 
+
 # -------------------------
 # LOGIN
 # -------------------------
@@ -117,8 +120,8 @@ def login():
         password = request.form["password"]
 
         conn = get_db_connection()
-        if conn is None:
-            return "Database not connected "
+        if not conn:
+            return "Database not connected"
 
         cursor = conn.cursor(dictionary=True)
 
@@ -136,9 +139,10 @@ def login():
             session["teacher"] = teacher["id"]
             return redirect(url_for("home"))
         else:
-            return "Invalid Login "
+            return "Invalid Login"
 
     return render_template("login.html")
+
 
 # -------------------------
 # LOGOUT
@@ -147,6 +151,7 @@ def login():
 def logout():
     session.pop("teacher", None)
     return redirect(url_for("home"))
+
 
 # -------------------------
 # UPLOAD PAGE
@@ -158,6 +163,7 @@ def upload():
 
     return render_template("upload.html")
 
+
 # -------------------------
 # UPLOAD PAPER
 # -------------------------
@@ -165,7 +171,7 @@ def upload():
 def upload_paper():
 
     if not session.get("teacher"):
-        return "Unauthorized "
+        return "Unauthorized"
 
     course = request.form["course"]
     semester = request.form["semester"]
@@ -181,8 +187,8 @@ def upload_paper():
         db_path = f"uploads/{filename}"
 
         conn = get_db_connection()
-        if conn is None:
-            return "Database not connected "
+        if not conn:
+            return "Database not connected"
 
         cursor = conn.cursor()
 
@@ -199,7 +205,8 @@ def upload_paper():
         flash("Uploaded successfully!", "success")
         return redirect(url_for("papers", course=course, sem=semester))
 
-    return "Upload Failed "
+    return "Upload Failed"
+
 
 # -------------------------
 # DELETE PAPER
@@ -208,11 +215,11 @@ def upload_paper():
 def delete_paper(id, course, sem):
 
     if not session.get("teacher"):
-        return "Unauthorized "
+        return "Unauthorized"
 
     conn = get_db_connection()
-    if conn is None:
-        return "Database not connected "
+    if not conn:
+        return "Database not connected"
 
     cursor = conn.cursor(dictionary=True)
 
@@ -233,17 +240,20 @@ def delete_paper(id, course, sem):
 
     return redirect(url_for("papers", course=course, sem=sem))
 
+
+# -------------------------
+# TEST ROUTE
+# -------------------------
 @app.route("/test")
 def test():
-    return "FLASK IS RUNNING "
-
+    return "FLASK IS RUNNING"
 
 
 # -------------------------
-# IMPORTANT: RAILWAY ENTRY
+# RAILWAY ENTRY
 # -------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
-    
+
 print("FLASK APP LOADED")
