@@ -6,6 +6,8 @@ import urllib.parse
 
 app = Flask(__name__)
 
+print("FLASK APP STARTING...")
+
 # -------------------------
 # SECRET KEY
 # -------------------------
@@ -19,7 +21,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------------------------
-# DATABASE CONNECTION (FIXED SAFE VERSION)
+# DATABASE CONNECTION
 # -------------------------
 def get_db_connection():
     url = os.getenv("MYSQL_URL")
@@ -31,7 +33,7 @@ def get_db_connection():
     try:
         parsed = urllib.parse.urlparse(url)
 
-        conn = mysql.connector.connect(
+        return mysql.connector.connect(
             host=parsed.hostname,
             user=parsed.username,
             password=parsed.password,
@@ -39,9 +41,6 @@ def get_db_connection():
             port=parsed.port,
             connection_timeout=5
         )
-
-        print("DB CONNECTED")
-        return conn
 
     except Exception as e:
         print("DB ERROR:", e)
@@ -62,6 +61,7 @@ def home():
 @app.route("/course/<name>")
 def course(name):
     return render_template("course.html", course=name)
+
 
 @app.route("/bca")
 def bca():
@@ -154,7 +154,7 @@ def logout():
 
 
 # -------------------------
-# UPLOAD PAGE
+# UPLOAD
 # -------------------------
 @app.route("/upload")
 def upload():
@@ -164,9 +164,6 @@ def upload():
     return render_template("upload.html")
 
 
-# -------------------------
-# UPLOAD PAPER
-# -------------------------
 @app.route("/upload-paper", methods=["POST"])
 def upload_paper():
 
@@ -209,7 +206,7 @@ def upload_paper():
 
 
 # -------------------------
-# DELETE PAPER
+# DELETE
 # -------------------------
 @app.route("/delete/<int:id>/<course>/<int:sem>")
 def delete_paper(id, course, sem):
@@ -242,11 +239,30 @@ def delete_paper(id, course, sem):
 
 
 # -------------------------
-# TEST ROUTE
+# DEBUG ROUTES (IMPORTANT)
 # -------------------------
 @app.route("/test")
 def test():
     return "FLASK IS RUNNING"
+
+
+@app.route("/ping")
+def ping():
+    return "pong"
+
+
+@app.route("/health")
+def health():
+    return "OK"
+
+
+@app.route("/debug")
+def debug():
+    return {
+        "status": "running",
+        "port": os.getenv("PORT"),
+        "mysql": "set" if os.getenv("MYSQL_URL") else "missing"
+    }
 
 
 # -------------------------
@@ -255,5 +271,3 @@ def test():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
-
-print("FLASK APP LOADED")
